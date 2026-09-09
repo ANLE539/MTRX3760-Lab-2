@@ -59,7 +59,7 @@ int main()
     Simulation.Run();
 
     std::cout << std::endl;
-    std::cout << "Run summary " << std::endl;
+    std::cout << "===== Run summary =====" << std::endl;
     std::cout << "Updates completed        : " << Simulation.GetUpdatesCompleted() << std::endl;
     std::cout << "Wall follower collisions : " << WallFollower.GetCollisionCount() << std::endl;
 
