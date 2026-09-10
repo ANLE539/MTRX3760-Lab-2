@@ -1,0 +1,30 @@
+# Makefile for MTRX3760 Lab 1, A5.
+#
+#   make          build the robot controller
+#   make clean    remove the program and the object files
+
+CXX      = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic
+TARGET   = robot
+OBJECTS  = main.o CSubsystem.o CRobotController.o CDriveMotor.o CLineDetector.o
+
+$(TARGET): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET)
+
+main.o: main.cpp CSubsystem.h CRobotController.h CDriveMotor.h CLineDetector.h
+	$(CXX) $(CXXFLAGS) -c main.cpp
+
+CSubsystem.o: CSubsystem.cpp CSubsystem.h
+	$(CXX) $(CXXFLAGS) -c CSubsystem.cpp
+
+CRobotController.o: CRobotController.cpp CRobotController.h CSubsystem.h
+	$(CXX) $(CXXFLAGS) -c CRobotController.cpp
+
+CDriveMotor.o: CDriveMotor.cpp CDriveMotor.h CSubsystem.h
+	$(CXX) $(CXXFLAGS) -c CDriveMotor.cpp
+
+CLineDetector.o: CLineDetector.cpp CLineDetector.h CSubsystem.h
+	$(CXX) $(CXXFLAGS) -c CLineDetector.cpp
+
+clean:
+	rm -f $(TARGET) $(OBJECTS)

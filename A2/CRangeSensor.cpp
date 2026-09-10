@@ -5,10 +5,10 @@
 #include "CRangeSensor.h"
 #include "CVecMath.h"
 
-namespace
-{
-    const Color kRayColor = Color{ 255, 200, 0, 120 };   // translucent amber
-}
+// Translucent amber, so the two rays read as measurements laid over the scene
+// rather than as part of the room.
+const Color CRangeSensor::kRayColor = Color{ 255, 200, 0, 120 };
+const float CRangeSensor::kRayThickness = 1.0f;
 
 //-----------------------------------------------------------------------------
 CRangeSensor::CRangeSensor( float aMountAngleRadians, float aMaxRange )
@@ -23,6 +23,7 @@ CRangeSensor::CRangeSensor( float aMountAngleRadians, float aMaxRange )
 float CRangeSensor::Sense( const CPose& arRobotPose, const CRoom& arRoom ) const
 {
     float WorldAngle = arRobotPose.mHeading + mMountAngleRadians;
+
     return arRoom.SenseDistance( arRobotPose.mPosition, WorldAngle, mMaxRange );
 }
 
@@ -36,5 +37,5 @@ void CRangeSensor::Draw( CRender& arRender, const CPose& arRobotPose,
     Vec2D RayEnd = CVecMath::Add( arRobotPose.mPosition,
                                    CVecMath::Scale( Direction, aMeasuredDistance ) );
 
-    arRender.DrawLine( arRobotPose.mPosition, RayEnd, 1.0f, kRayColor );
+    arRender.DrawLine( arRobotPose.mPosition, RayEnd, kRayThickness, kRayColor );
 }

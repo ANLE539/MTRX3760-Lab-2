@@ -7,10 +7,10 @@
 // answers two purely geometric questions -
 //
 //   RayCast          - how far along a ray is the first segment it meets?
-//   DistanceToLoop    - how far is a point from the nearest segment?
+//   DistanceToLoop   - how far is a point from the nearest segment?
 //
-// CRoom and CFloorLine each wrap one of these to give the segments their
-// domain meaning (a wall to bump into, a line to sense).
+// CRoom wraps one of these to give the segments their domain meaning (a wall
+// to bump into); the line follower's CFloorLine does the same for a line.
 //-----------------------------------------------------------------------------
 
 #ifndef CSEGMENTLOOP_H
@@ -44,7 +44,12 @@ class CSegmentLoop
         Vec2D ClosestPointOnLoop( Vec2D aPoint ) const;
 
         //---Drawing---
-        void Draw( CRender& arRender, Color aColor, float aThickness = 2.0f ) const;
+
+        // Draws every segment of the loop. The thickness comes from the caller
+        // because it is a property of what the loop represents - a thin wall
+        // outline, or a line painted at its real width on the floor - not of
+        // the geometry itself.
+        void Draw( CRender& arRender, Color aColor, float aThickness ) const;
 
     private:
         //---One wall/line segment---
@@ -53,6 +58,17 @@ class CSegmentLoop
             Vec2D mStart;
             Vec2D mEnd;
         };
+
+        //---Consts---
+
+        // Below this the ray and the segment are parallel and there is no
+        // single crossing point to report.
+        static const float kParallelTolerance;
+
+        // Starting value for a "nearest so far" search, in squared units:
+        // far larger than any squared distance that can occur inside the
+        // render window, so the first candidate always beats it.
+        static const float kVeryLargeDistanceSquared;
 
         //---The loop, as a set of segments---
         std::vector<CSegment> mSegments;

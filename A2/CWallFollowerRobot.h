@@ -22,6 +22,7 @@
 #ifndef CWALLFOLLOWERROBOT_H
 #define CWALLFOLLOWERROBOT_H
 
+#include "CDifferentialDrive.h"   // for CWheelSpeeds
 #include "CRangeSensor.h"
 #include "CRender.h"
 #include "CRobot.h"
@@ -42,10 +43,14 @@ class CWallFollowerRobot : public CRobot
 
     protected:
         //---CRobot interface---
-        void ComputeWheelSpeeds( float& arLeftWheelSpeed, float& arRightWheelSpeed ) const override;
+        CWheelSpeeds ComputeWheelSpeeds() const override;
         void OnAfterMove() override;
 
     private:
+        //---Where the two sensors point, relative to the robot's heading---
+        static const float kRightSensorAngle;
+        static const float kFrontRightSensorAngle;
+
         //---Consts governing the control law---
         static const float kMaxSensorRange;
         static const float kTargetWallDistance;
@@ -54,6 +59,9 @@ class CWallFollowerRobot : public CRobot
         static const float kCornerGain;
         static const float kMaxSteer;
         static const float kSqrt2;
+
+        //---Appearance---
+        static const Color kBodyColor;
 
         //---The room this robot senses and can collide with---
         const CRoom& mrRoom;

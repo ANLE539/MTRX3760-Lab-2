@@ -13,8 +13,8 @@
 #ifndef CROBOT_H
 #define CROBOT_H
 
-#include "CDifferentialDrive.h"
-#include "CLoopReader.h"   // for CPose
+#include "CDifferentialDrive.h"   // for CWheelSpeeds
+#include "CLoopReader.h"          // for CPose
 #include "CRender.h"
 #include "CTrail.h"
 
@@ -32,7 +32,9 @@ class CRobot
         // for wheel speeds, drives the wheels, records the trail. Not
         // virtual - subclasses customise behaviour via ComputeWheelSpeeds()
         // and OnAfterMove(), not by overriding the update sequence itself.
-        void Update( float aTimeStep );        //---Drawing---
+        void Update( float aTimeStep );
+
+        //---Drawing---
         virtual void Draw( CRender& arRender ) const;
 
         //---Access---
@@ -41,7 +43,7 @@ class CRobot
 
     protected:
         //---For subclasses to decide how fast each wheel should turn---
-        virtual void ComputeWheelSpeeds( float& arLeftWheelSpeed, float& arRightWheelSpeed ) const = 0;
+        virtual CWheelSpeeds ComputeWheelSpeeds() const = 0;
 
         //---An optional hook run after the robot has moved (e.g. collision checks)---
         virtual void OnAfterMove();
@@ -55,6 +57,10 @@ class CRobot
         static const float kTrackWidth;
 
     private:
+        //---Consts governing how the body is drawn---
+        static const float kHeadingLineFactor;
+        static const float kHeadingLineThickness;
+
         //---Pose and motion---
         CPose mPose;
         CDifferentialDrive mDrive;

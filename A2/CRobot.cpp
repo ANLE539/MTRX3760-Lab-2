@@ -8,6 +8,11 @@
 const float CRobot::kBodyRadius = 15.0f;
 const float CRobot::kTrackWidth = 2.0f * CRobot::kBodyRadius;
 
+// The heading indicator is drawn a little longer than the body radius so its
+// tip clears the edge of the disc and the facing direction is unmistakable.
+const float CRobot::kHeadingLineFactor = 1.4f;
+const float CRobot::kHeadingLineThickness = 3.0f;
+
 //-----------------------------------------------------------------------------
 CRobot::CRobot( const CPose& arStartPose, Color aBodyColor )
     :
@@ -27,17 +32,20 @@ CRobot::~CRobot()
 
 
 //-----------------------------------------------------------------------------
+// The trail point is recorded last, after OnAfterMove() has had its chance to
+// correct the position, so the trail always shows where the robot really
+// ended the step rather than where it was before being pushed out of a wall.
+//-----------------------------------------------------------------------------
 void CRobot::Update( float aTimeStep )
 {
-    float LeftWheelSpeed = 0.0f;
-    float RightWheelSpeed = 0.0f;
-    ComputeWheelSpeeds( LeftWheelSpeed, RightWheelSpeed );
+    mDrive.SetWheelSpeeds( ComputeWheelSpeeds() );
 
-    mPose = mDrive.Step( mPose, LeftWheelSpeed, RightWheelSpeed, aTimeStep );
-    mTrail.AddPoint( mPose.mPosition );
+    mPose = mDrive.Step( mPose, aTimeStep );
     ++mUpdateCount;
 
     OnAfterMove();
+
+    mTrail.AddPoint( mPose.mPosition );
 }
 
 
@@ -53,7 +61,7 @@ void CRobot::OnAfterMove()
 //-----------------------------------------------------------------------------
 void CRobot::Draw( CRender& arRender ) const
 {
-    const float HeadingLineLength = kBodyRadius * 1.4f;
+    const float HeadingLineLength = kBodyRadius * kHeadingLineFactor;
 
     mTrail.Draw( arRender, mBodyColor );
 
@@ -62,7 +70,7 @@ void CRobot::Draw( CRender& arRender ) const
     Vec2D FacingDirection = CVecMath::FromAngle( mPose.mHeading );
     Vec2D HeadingLineEnd = CVecMath::Add( mPose.mPosition,
                                            CVecMath::Scale( FacingDirection, HeadingLineLength ) );
-    arRender.DrawLine( mPose.mPosition, HeadingLineEnd, 3.0f, BLACK );
+    arRender.DrawLine( mPose.mPosition, HeadingLineEnd, kHeadingLineThickness, BLACK );
 }
 
 

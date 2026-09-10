@@ -7,11 +7,9 @@
 #include <cmath>
 #include <iostream>
 
-namespace
-{
-    const Color kBodyColor = SKYBLUE;
-    const float kDegreesToRadians = float( M_PI ) / 180.0f;
-}
+//---Sensor mounting angles, as fractions of a half turn from the heading-----
+const float CWallFollowerRobot::kRightSensorAngle = 0.5f * float( M_PI );     // 90 degrees
+const float CWallFollowerRobot::kFrontRightSensorAngle = 0.25f * float( M_PI ); // 45 degrees
 
 const float CWallFollowerRobot::kMaxSensorRange = 300.0f;
 const float CWallFollowerRobot::kTargetWallDistance = 55.0f;
@@ -21,13 +19,15 @@ const float CWallFollowerRobot::kCornerGain = 0.6f;
 const float CWallFollowerRobot::kMaxSteer = 60.0f;
 const float CWallFollowerRobot::kSqrt2 = 1.41421356f;
 
+const Color CWallFollowerRobot::kBodyColor = SKYBLUE;
+
 //-----------------------------------------------------------------------------
 CWallFollowerRobot::CWallFollowerRobot( const CPose& arStartPose, const CRoom& arRoom )
     :
         CRobot( arStartPose, kBodyColor ),
         mrRoom( arRoom ),
-        mRightSensor( 90.0f * kDegreesToRadians, kMaxSensorRange ),
-        mFrontRightSensor( 45.0f * kDegreesToRadians, kMaxSensorRange ),
+        mRightSensor( kRightSensorAngle, kMaxSensorRange ),
+        mFrontRightSensor( kFrontRightSensorAngle, kMaxSensorRange ),
         mWasColliding( false ),
         mCollisionCount( 0 )
 {
@@ -35,8 +35,7 @@ CWallFollowerRobot::CWallFollowerRobot( const CPose& arStartPose, const CRoom& a
 
 
 //-----------------------------------------------------------------------------
-void CWallFollowerRobot::ComputeWheelSpeeds( float& arLeftWheelSpeed,
-                                              float& arRightWheelSpeed ) const
+CWheelSpeeds CWallFollowerRobot::ComputeWheelSpeeds() const
 {
     float RightDistance = mRightSensor.Sense( GetPose(), mrRoom );
     float FrontRightDistance = mFrontRightSensor.Sense( GetPose(), mrRoom );
@@ -73,8 +72,9 @@ void CWallFollowerRobot::ComputeWheelSpeeds( float& arLeftWheelSpeed,
 
     // Positive Steer turns the robot toward the wall (right); negative turns
     // it away (left) - see CDifferentialDrive.h for the heading convention.
-    arLeftWheelSpeed = kBaseWheelSpeed + Steer;
-    arRightWheelSpeed = kBaseWheelSpeed - Steer;
+    CWheelSpeeds Result = { kBaseWheelSpeed + Steer, kBaseWheelSpeed - Steer };
+
+    return Result;
 }
 
 

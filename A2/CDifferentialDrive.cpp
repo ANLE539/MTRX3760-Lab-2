@@ -6,22 +6,7 @@
 
 #include <cmath>
 
-namespace
-{
-    const float kTwoPi = 2.0f * float( M_PI );
-
-    // Keep a heading in the range [0, 2*PI) so it does not grow without
-    // bound over a long run.
-    float NormaliseAngle( float aAngle )
-    {
-        float Result = std::fmod( aAngle, kTwoPi );
-        if( Result < 0.0f )
-        {
-            Result += kTwoPi;
-        }
-        return Result;
-    }
-}
+const float CDifferentialDrive::kTwoPi = 2.0f * float( M_PI );
 
 //-----------------------------------------------------------------------------
 CDifferentialDrive::CDifferentialDrive( float aTrackWidth )
@@ -32,16 +17,44 @@ CDifferentialDrive::CDifferentialDrive( float aTrackWidth )
 
 
 //-----------------------------------------------------------------------------
-CPose CDifferentialDrive::Step( const CPose& arPose, float aLeftWheelSpeed,
-                                 float aRightWheelSpeed, float aTimeStep ) const
+void CDifferentialDrive::SetWheelSpeeds( const CWheelSpeeds& arSpeeds )
 {
-    float LinearSpeed = 0.5f * (aLeftWheelSpeed + aRightWheelSpeed);
-    float AngularSpeed = (aLeftWheelSpeed - aRightWheelSpeed) / mTrackWidth;
+    mLeftWheel.SetSpeed( arSpeeds.mLeft );
+    mRightWheel.SetSpeed( arSpeeds.mRight );
+}
+
+
+//-----------------------------------------------------------------------------
+// Working in distances rolled rather than speeds keeps the kinematics in one
+// place: the centre of the robot advances by the average of the two, and the
+// robot turns by their difference spread over the track width.
+//-----------------------------------------------------------------------------
+CPose CDifferentialDrive::Step( const CPose& arPose, float aTimeStep ) const
+{
+    float LeftDistance = mLeftWheel.DistanceIn( aTimeStep );
+    float RightDistance = mRightWheel.DistanceIn( aTimeStep );
+
+    float ForwardDistance = 0.5f * ( LeftDistance + RightDistance );
+    float HeadingChange = ( LeftDistance - RightDistance ) / mTrackWidth;
 
     CPose Result = arPose;
-    Result.mPosition.x += LinearSpeed * std::cos( arPose.mHeading ) * aTimeStep;
-    Result.mPosition.y += LinearSpeed * std::sin( arPose.mHeading ) * aTimeStep;
-    Result.mHeading = NormaliseAngle( arPose.mHeading + AngularSpeed * aTimeStep );
+    Result.mPosition.x += ForwardDistance * std::cos( arPose.mHeading );
+    Result.mPosition.y += ForwardDistance * std::sin( arPose.mHeading );
+    Result.mHeading = NormaliseAngle( arPose.mHeading + HeadingChange );
+
+    return Result;
+}
+
+
+//-----------------------------------------------------------------------------
+float CDifferentialDrive::NormaliseAngle( float aAngle )
+{
+    float Result = std::fmod( aAngle, kTwoPi );
+
+    if( Result < 0.0f )
+    {
+        Result += kTwoPi;
+    }
 
     return Result;
 }

@@ -21,12 +21,19 @@ class CRangeSensor
         CRangeSensor( float aMountAngleRadians, float aMaxRange );
 
         //---Sensing---
+
+        // Distance from the robot's centre to the first wall the ray meets,
+        // or the sensor's maximum range when it meets none.
         float Sense( const CPose& arRobotPose, const CRoom& arRoom ) const;
 
-        //---Drawing (shows the last-cast ray, for visual debugging)---
+        //---Drawing (shows the ray, for visual debugging)---
         void Draw( CRender& arRender, const CPose& arRobotPose, float aMeasuredDistance ) const;
 
     private:
+        //---Consts governing how the ray is drawn---
+        static const Color kRayColor;
+        static const float kRayThickness;
+
         //---Where the sensor points, relative to the robot's own heading---
         const float mMountAngleRadians;
         const float mMaxRange;

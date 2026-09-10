@@ -1,0 +1,45 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+skinparam linetype ortho
+top to bottom direction
+hide empty members
+
+class CSimulation
+class CRender
+class CLoopReader
+class CRoom
+class CFloorLine
+class CSegmentLoop
+class CRobot
+class CWallFollowerRobot
+class CLineFollowerRobot
+class CDifferentialDrive
+class CWheel
+class CTrail
+class CRangeSensor
+class CLineSensor
+
+CRender            --* CSimulation
+CLoopReader        --* CSimulation
+CRoom              --* CSimulation
+CFloorLine         --* CSimulation
+CRobot             --* CSimulation
+
+CSegmentLoop       --* CRoom
+CSegmentLoop       --* CFloorLine
+CDifferentialDrive --* CRobot
+CTrail             --* CRobot
+CWheel             --* CDifferentialDrive
+CRangeSensor       --* CWallFollowerRobot
+CLineSensor        --* CLineFollowerRobot
+
+CWallFollowerRobot --|> CRobot
+CLineFollowerRobot --|> CRobot
+
+CWallFollowerRobot -> CRoom
+CLineFollowerRobot -> CFloorLine
+
+
+@enduml
